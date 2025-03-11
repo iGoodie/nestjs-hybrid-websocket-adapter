@@ -10,7 +10,8 @@ const HybridWebsocket = composeWebsocketAdapters({
   SocketIO: {
     adapter: (app) => new IoAdapter(app),
     checkClient: (client) => client instanceof SocketIO.Socket,
-    checkServer: (server) => server instanceof SocketIO.Server,
+    checkServer: (server) =>
+      server instanceof SocketIO.Server || server instanceof SocketIO.Namespace,
   },
   WS: {
     adapter: (app) => new WsAdapter(app),
@@ -23,6 +24,7 @@ const HybridWebsocket = composeWebsocketAdapters({
 
 @HybridWebsocket.Gateway(3001, {
   type: "SocketIO",
+  namespace: "/my-app",
 })
 export class AppGateway1 {}
 
