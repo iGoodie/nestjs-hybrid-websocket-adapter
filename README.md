@@ -1,6 +1,6 @@
 <!-- Logo -->
 <p align="center">
-  <img src="https://raw.githubusercontent.com/iGoodie/nestjs-hybrid-websocket-adapter/master/.github/assets/logo.svg" height="100px" alt="Logo"/>
+  <img src="https://raw.githubusercontent.com/iGoodie/nestjs-hybrid-websocket-adapter/refs/heads/master/.github/logo.svg" height="100px" alt="Logo"/>
 </p>
 <h1 align="center">
   NestJS: Hybrid Websocket Adapter
