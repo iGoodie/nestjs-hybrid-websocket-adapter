@@ -52,4 +52,85 @@
 </p>
 
 # Description
-TODO
+
+Composable WebSocketAdapter for NestJS Gateways, allowing you to seamlessly support multiple underlying server types in one application.
+
+# Features
+
+- 🔌 Compose multiple WebSocket adapters into a single one.
+
+- 🧠 Automatically delegates logic to the correct adapter based on runtime checks.
+
+- 🧪 Clean abstraction for integrating different WebSocket backends.
+
+- 💡 Type-safe and extensible.
+
+# Concept
+
+In a NestJS app, you might want to support different WebSocket implementations (e.g., ws, socket.io, uwebsocket, etc) based on certain conditions.
+
+This library allows you to define multiple adapters with custom matching logic, and automatically selects the appropriate one based on the client/server at runtime.
+
+# Usage
+
+1. Compose your websocket adapters into a HybridWebsocket.
+
+```ts
+import { IoAdapter } from "@nestjs/platform-socket.io";
+import { WsAdapter } from "@nestjs/platform-ws";
+import { composeWebsocketAdapters } from "your-library-name";
+
+const HybridWebsocket = composeWebsocketAdapters({
+  SocketIO: {
+    adapter: (app) => new IoAdapter(app),
+    checkClient: (client) => client instanceof SocketIO.Socket,
+    checkServer: (server) =>
+      server instanceof SocketIO.Server || server instanceof SocketIO.Namespace,
+  },
+  WS: {
+    adapter: (app) => new WsAdapter(app),
+    checkClient: (client) => client instanceof WebSocket.WebSocket,
+    checkServer: (server) => server instanceof WebSocket.WebSocketServer,
+  },
+});
+```
+
+2. Create and register an adapter to your Nest App from your composition.
+
+```ts
+async function bootstrap() {
+  const app = await NestFactory.create(AppModule);
+  app.useWebSocketAdapter(HybridWebsocket.createAdapter(app));
+  await app.listen(3000);
+}
+```
+
+3. Use the Gateway decorator from your composition instead of WebSocketGateway.
+
+```ts
+@HybridWebsocket.Gateway(3001, {
+  type: "SocketIO",
+  namespace: "/my-app",
+})
+export class AppGateway1 {}
+
+@HybridWebsocket.Gateway(3002, {
+  type: "WS",
+})
+export class AppGateway2 {}
+```
+
+4. That's it, now your endpoints are ready to be used! 🎉
+
+# Under the Hood
+
+This library uses method proxying to intercept all WebSocketAdapter calls and reroute them to the correct adapter instance at runtime.
+It relies on the `type` you define in the `@Gateway` metadata and dynamic type checking on clients and servers to determine routing.
+
+## License
+
+&copy; 2025 Taha Anılcan Metinyurt (iGoodie)
+
+For any part of this work for which the license is applicable, this work is licensed under the [Attribution-ShareAlike 4.0 International](http://creativecommons.org/licenses/by-sa/4.0/) license. (See LICENSE).
+
+<a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-sa/4.0/88x31.png" /></a>
